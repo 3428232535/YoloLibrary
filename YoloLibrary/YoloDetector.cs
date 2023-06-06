@@ -73,9 +73,8 @@ public class YoloDetector
             width = array[2] * ratio, height = array[3] * ratio;
         return new(left, right, width, height);
     }
-    public string DrawBase64Result(string imagePath, IEnumerable<YoloResult> results)
+    public string DrawBase64Result(Mat image, IEnumerable<YoloResult> results)
     {
-        using Mat image = Cv2.ImRead(imagePath);
         foreach (var result in results)
         {
             Cv2.Rectangle(image, result.Box, Colors[Array.IndexOf(TargetIds, result.ClassId)], 2);
