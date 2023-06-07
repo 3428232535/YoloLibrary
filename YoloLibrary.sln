@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YoloLibrary.Test", "YoloLib
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YoloLibrary.WebAPI", "YoloLibrary.WebAPI\YoloLibrary.WebAPI.csproj", "{B6E683B2-C510-4DDA-894C-FA5399FC9704}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YoloLibrary.WebApp", "YoloLibrary.WebApp\YoloLibrary.WebApp.csproj", "{D1CBD796-621B-46CB-B95F-86C678C0440B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{B6E683B2-C510-4DDA-894C-FA5399FC9704}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B6E683B2-C510-4DDA-894C-FA5399FC9704}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B6E683B2-C510-4DDA-894C-FA5399FC9704}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D1CBD796-621B-46CB-B95F-86C678C0440B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D1CBD796-621B-46CB-B95F-86C678C0440B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D1CBD796-621B-46CB-B95F-86C678C0440B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D1CBD796-621B-46CB-B95F-86C678C0440B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

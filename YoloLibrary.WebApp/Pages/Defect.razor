@@ -1,0 +1,135 @@
+﻿@page "/Defect"
+@using System.Text.Json
+@using System.Text.Json.Nodes
+@inject IHttpClientFactory HttpClientFactory
+@inject ILogger<Defect> Logger
+
+<PageTitle>Defect Detection</PageTitle>
+
+<h1>Defect Detection Using Yolo</h1>
+
+<label>
+    <InputFile OnChange="OnFileChange"/>
+</label>
+
+@if (_isLoading)
+{
+    <p>uploading...</p>
+}
+else
+{
+    if (_file is not null)
+    {
+        <ul>
+            <li>Name: @_file.Name</li>
+            <li>Last modified: @_file.LastModified.ToString()</li>
+            <li>Size (bytes): @_file.Size</li>
+            <li>Content type: @_file.ContentType</li>
+        </ul>
+    }
+}
+
+@if (_base64Image is not null)
+{
+    <div class="card" style="width: 640px">
+        <button class="btn btn-primary" @onclick="OnDetectionClick">Start Detection</button>
+        <img class="card-img-top" src="data:@(_file!.ContentType);base64,@_base64Image"
+             alt="Card image cap"/>
+        <ul class="list-group list-group-flush">
+            @foreach (var result in _results)
+            {
+                <li class="list-group-item">@result.ClassId, @result.Confidence, (@result.X, @result.Y)</li>
+            }
+        </ul>
+    </div>
+}
+
+@code {
+    private IBrowserFile? _file;
+
+    private readonly long _maxFileSize = 1024 * 1024 * 10;
+
+    private bool _isLoading = false;
+
+    private string? _base64Image;
+
+    private IEnumerable<YoloDto> _results = Enumerable.Empty<YoloDto>();
+
+    private async Task OnFileChange(InputFileChangeEventArgs e)
+    {
+        _isLoading = true;
+        _file = e.File;
+        try
+        {
+            await using var fs = _file.OpenReadStream(_maxFileSize);
+            await using var fileStream = File.Create(Path.GetTempFileName());
+            await fs.CopyToAsync(fileStream);
+            fileStream.Seek(0, SeekOrigin.Begin);
+            _base64Image = await Base64FromImageFile(fileStream);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError("File: {Filename} Error: {Error}", _file.Name, ex.Message);
+        }
+
+        _isLoading = false;
+    }
+
+    private async Task<string> Base64FromImageFile(Stream fs)
+    {
+        byte[] buffer = new byte[12 * 1024];
+        var token = new CancellationToken();
+        string sb = string.Empty;
+        try
+        {
+            int bytesRead = 0, totalBytesRead = 0;
+            while ((bytesRead = await fs.ReadAsync(buffer, 0, buffer.Length - totalBytesRead, token)) > 0)
+            {
+                totalBytesRead += bytesRead;
+                if (totalBytesRead == buffer.Length)
+                {
+                    sb += Convert.ToBase64String(buffer);
+                    totalBytesRead = 0;
+                }
+            }
+            if (totalBytesRead > 0)
+            {
+                sb += Convert.ToBase64String(buffer, 0, totalBytesRead);
+            }
+            return sb;
+        }
+        catch (OperationCanceledException)
+        {
+            Logger.LogError("Image Encoding Canceled");
+            throw;
+        }
+        catch (Exception e)
+        {
+            Logger.LogError("Image Encoding Error: {Error}", e.Message);
+            throw;
+        }
+    }
+    private async Task OnDetectionClick(MouseEventArgs e)
+    {
+        using HttpClient client = HttpClientFactory.CreateClient();
+        var request = await client.PostAsJsonAsync("http://localhost:5001/Defect",
+            new
+            {
+                base64Image = _base64Image
+            });
+        request.EnsureSuccessStatusCode();
+        var response = await request.Content.ReadAsStringAsync();
+        JsonNode json = JsonNode.Parse(response)!;
+        _base64Image = json["resultImage"].GetValue<string>();
+        _results = json["yoloDtos"].Deserialize<IEnumerable<YoloDto>>(Options)
+            .OrderBy(r => r.X).ThenBy(r => r.Y);
+    }
+
+    private record YoloDto(string ClassId, float Confidence, int X, int Y, int Width, int Height);
+
+    private readonly JsonSerializerOptions Options = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
+
+}
