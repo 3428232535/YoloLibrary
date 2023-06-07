@@ -21,8 +21,6 @@ else
     if (_file is not null)
     {
         <ul>
-            <li>Name: @_file.Name</li>
-            <li>Last modified: @_file.LastModified.ToString()</li>
             <li>Size (bytes): @_file.Size</li>
             <li>Content type: @_file.ContentType</li>
         </ul>
@@ -31,7 +29,7 @@ else
 
 @if (_base64Image is not null)
 {
-    <div class="card" style="width: 640px">
+    <div class="card" style="width: 576px">
         <button class="btn btn-primary" @onclick="OnDetectionClick">Start Detection</button>
         <img class="card-img-top" src="data:@(_file!.ContentType);base64,@_base64Image"
              alt="Card image cap"/>
@@ -53,11 +51,11 @@ else
 
     private string? _base64Image;
 
-    private IEnumerable<YoloDto> _results = Enumerable.Empty<YoloDto>();
+    private IEnumerable<Result> _results = Enumerable.Empty<Result>();
 
     private async Task OnFileChange(InputFileChangeEventArgs e)
     {
-        _isLoading = true;
+        _isLoading = true; _results = Enumerable.Empty<Result>();
         _file = e.File;
         try
         {
@@ -109,23 +107,20 @@ else
             throw;
         }
     }
+    
     private async Task OnDetectionClick(MouseEventArgs e)
     {
         using HttpClient client = HttpClientFactory.CreateClient();
-        var request = await client.PostAsJsonAsync("http://localhost:5001/Defect",
-            new
-            {
-                base64Image = _base64Image
-            });
+        var request = await client.PostAsJsonAsync("http://localhost:5001/Defect", new{ base64Image = _base64Image });
         request.EnsureSuccessStatusCode();
         var response = await request.Content.ReadAsStringAsync();
         JsonNode json = JsonNode.Parse(response)!;
         _base64Image = json["resultImage"].GetValue<string>();
-        _results = json["yoloDtos"].Deserialize<IEnumerable<YoloDto>>(Options)
+        _results = json["results"].Deserialize<IEnumerable<Result>>(Options)
             .OrderBy(r => r.X).ThenBy(r => r.Y);
     }
 
-    private record YoloDto(string ClassId, float Confidence, int X, int Y, int Width, int Height);
+    private record Result(string ClassId, float Confidence, int X, int Y, int Width, int Height);
 
     private readonly JsonSerializerOptions Options = new()
     {

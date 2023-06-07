@@ -2,6 +2,6 @@
 
 public class DetectResult
 {
-    public IEnumerable<YoloDto> YoloDtos { get; set; }
+    public IEnumerable<YoloDto> Results { get; set; }
     public string ResultImage { get; set; }
 }

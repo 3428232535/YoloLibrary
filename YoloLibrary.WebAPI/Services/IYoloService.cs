@@ -20,7 +20,7 @@ class YoloService : IYoloService
         var resultImage = Detector.DrawBase64Result(img, results);
         return Task.FromResult(new DetectResult
         {
-            YoloDtos = results.Select(YoloDto.FromYoloResult),
+            Results = results.Select(YoloDto.FromYoloResult),
             ResultImage = resultImage
         });
     }
