@@ -16,4 +16,10 @@
       <ProjectReference Include="..\YoloLibrary\YoloLibrary.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="Assets\CARAFE.onnx">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>

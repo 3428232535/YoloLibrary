@@ -17,8 +17,14 @@ public class YoloDetector
     public bool IsInitialized => Session is not null;
     private InferenceSession? Session { get; set; }
     public YoloDetector() { }
-    public YoloDetector(string modelPath) => InitDetectSession(modelPath);
-    public void InitDetectSession(string modelPath) => Session = new(modelPath);
+    public YoloDetector(string modelPath, bool useCuda = false) => InitDetectSession(modelPath, useCuda);
+    private void InitDetectSession(string modelPath, bool useCuda = false)
+    {
+        SessionOptions options = new();
+        if (useCuda) options.AppendExecutionProvider_CUDA();
+        else options.AppendExecutionProvider_CPU();
+        Session = new(modelPath, options);
+    }
     public void ImagePreprocess(Mat image, out Tensor<float> tensor)
     {
         int maxSize = Math.Max(image.Width, image.Height);

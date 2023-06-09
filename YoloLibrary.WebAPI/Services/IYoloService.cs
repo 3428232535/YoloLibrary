@@ -11,7 +11,7 @@ public interface IYoloService
 class YoloService : IYoloService
 {
     private static readonly string ModelPath = Path.Combine(Environment.CurrentDirectory, "Assets", "CARAFE.onnx");
-    public YoloDetector Detector { get; } = new(ModelPath);
+    public YoloDetector Detector { get; } = new(ModelPath, true);
     public Task<DetectResult> DetectAsync(string base64Image)
     {
         using var img = Detector.FromBase64(base64Image);

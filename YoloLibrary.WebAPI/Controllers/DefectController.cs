@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Diagnostics;
+using Microsoft.AspNetCore.Mvc;
 using YoloLibrary.WebAPI.Services;
 
 namespace YoloLibrary.WebAPI.Controllers;
@@ -21,7 +22,10 @@ public class DefectController : ControllerBase
         if (string.IsNullOrEmpty(image.Base64Image)) return BadRequest("Image is null or empty.");
         try
         {
+            var start = Stopwatch.GetTimestamp();
             var result = await _yoloService.DetectAsync(image.Base64Image);
+            var elapse = Stopwatch.GetElapsedTime(start).TotalMilliseconds;
+            _logger.LogInformation("Detection took {Elapse} ms", elapse);
             return Ok(result);
         }
         catch (Exception e)
