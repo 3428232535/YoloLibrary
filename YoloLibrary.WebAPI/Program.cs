@@ -12,6 +12,12 @@ builder.Services.AddSingleton<IYoloService, YoloService>();
 
 var app = builder.Build();
 
+app.Lifetime.ApplicationStarted.Register(() => {
+    var yoloService = app.Services.GetRequiredService<IYoloService>();
+    Console.WriteLine("start warmup");
+    yoloService.Detector.Warmup();
+});
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

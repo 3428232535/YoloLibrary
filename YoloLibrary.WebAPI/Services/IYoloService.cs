@@ -16,7 +16,8 @@ class YoloService : IYoloService
     {
         using var img = Detector.FromBase64(base64Image);
         Detector.ImagePreprocess(img, out var tensor);
-        var results = Detector.Detect(tensor).ToList();
+        var ratio = Detector.GetRatio(img.Size());
+        var results = Detector.Detect(tensor, ratio).ToList();
         var resultImage = Detector.DrawBase64Result(img, results);
         return Task.FromResult(new DetectResult
         {
