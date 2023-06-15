@@ -4,8 +4,7 @@ namespace YoloLibrary.Test;
 
 public class TestDetector : IClassFixture<DetectorFixture>
 {
-    private static readonly string TestImagePath = Path.Combine(@"D:\Code\csharp\YoloLibrary\YoloLibrary.Test", "Assets", "test.png");
-    
+    private const string TestImagePath = @"D:\Code\csharp\YoloLibrary\YoloLibrary.Test\Assets\test.png";
     private readonly ITestOutputHelper _output;
     private readonly DetectorFixture _fixture;
     public TestDetector(ITestOutputHelper output, DetectorFixture fixture)
@@ -14,16 +13,15 @@ public class TestDetector : IClassFixture<DetectorFixture>
         _fixture = fixture;
     }
     
-    [Fact]
+    [Fact,Trait("Category","Behavior")]
     public void TestDetect()
     {
-        var detector = _fixture.Detector;
         using var img = _fixture.Detector.FromPath(TestImagePath); 
-        detector.ImagePreprocess(img, out var tensor);
-        var results = detector.Detect(tensor);
+        _fixture.Detector.ImagePreprocess(img, out var tensor);
+        var results = _fixture.Detector.Detect(tensor);
         Assert.NotEmpty(results);
     }
-    [Fact]
+    [Fact,Trait("Category", "Behavior")]
     public void TestFromFileStream()
     {
         using var img = _fixture.Detector.FromPath(TestImagePath); 

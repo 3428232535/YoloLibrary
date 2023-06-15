@@ -94,5 +94,6 @@ sudo apt update && sudo apt install -y \
     libdc1394-22-dev \
     libxine2-dev \
     libv4l-dev \
-    tesseract-ocr
+    tesseract-ocr \
+    libopenexr-dev
 ```
